@@ -10,38 +10,45 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+const allowedOrigins = process.env.FRONTEND_URL
+    ? process.env.FRONTEND_URL.split(",").map((origin) => origin.trim())
+    : true;
+
 app.use(cors({
-    origin: [
-        "https://full-stack-development-3gr1d4cuf-csp-ddd1.vercel.app"
-    ],
+    origin: allowedOrigins,
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type"]
 }));
 
-app.use(express.json());
 app.use(morgan("dev"));
 
 const port = process.env.PORT || 3000;
 const mongoUri = process.env.MONGO_URI;
-const dbName = process.env.DB_NAME;
+const dbName = process.env.DB_NAME || "mern_crud_app";
 
 // Connect to MongoDB
 const connectDB = async () => {
+    if (!mongoUri) {
+        console.warn("MONGO_URI is not set. Server will run without a database connection until MONGO_URI is configured.");
+        return;
+    }
     try {
-        await mongoose.connect(process.env.MONGO_URI, {
-            dbName: process.env.DB_NAME
+        await mongoose.connect(mongoUri, {
+            dbName
         });
-
         console.log("MongoDB Connected Successfully");
-
-        app.listen(port,"0.0.0.0", () => {
-            console.log(`Server running on port ${port}`);
-        });
-
     } catch (error) {
         console.error("MongoDB Connection Failed:", error.message);
-        process.exit(1);
     }
+};
+
+const ensureDBConnected = (req, res, next) => {
+    if (mongoose.connection.readyState !== 1) {
+        return res.status(503).send({
+            message: "Database not connected. Please configure MONGO_URI in environment variables."
+        });
+    }
+    next();
 };
 
   // Define the Post schema and model
@@ -52,6 +59,8 @@ const postSchema = new mongoose.Schema({
 const Post = mongoose.model("Post", postSchema);
 
 //CRUD operations for Blog Posts
+app.use("/api/v1/posts", ensureDBConnected);
+
 // Create a new post
 app.post("/api/v1/posts", async (req, res) => {
   try {
@@ -117,11 +126,15 @@ app.delete("/api/v1/posts/:id", async (req, res) => {
 });
 //Test route
 app.get("/", (req, res) => {
-  res.send({ message: "Welcome to Express Test" });
+  res.send({
+    message: "Welcome to Express Test",
+    dbConnected: mongoose.connection.readyState === 1,
+  });
 });
+
 //Start the server
-/*app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
+app.listen(port, "0.0.0.0", () => {
+  console.log(`Server running on port ${port}`);
 });
-*/
+
 connectDB();

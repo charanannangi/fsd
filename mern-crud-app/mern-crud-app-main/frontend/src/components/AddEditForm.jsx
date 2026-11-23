@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-
-const API_URL = "https://full-stack-development-lab.onrender.com";
+import { API_URL } from "../config";
 
 function AddEditForm() {
   const { id } = useParams();
@@ -26,7 +25,7 @@ function AddEditForm() {
     const method = id ? "PUT" : "POST";
     const url = id
       ? `${API_URL}/api/v1/posts/${id}`
-      : "${API_URL}/api/v1/posts";
+      : `${API_URL}/api/v1/posts`;
     await fetch(url, {
       method,
       headers: {

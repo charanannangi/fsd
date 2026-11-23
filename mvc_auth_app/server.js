@@ -49,17 +49,17 @@ app.use((req, res) => {
 
 const startServer = async () => {
     if (!process.env.JWT_SECRET) {
-        console.error("JWT_SECRET is missing from .env");
-        process.exit(1);
+        console.warn("JWT_SECRET is not set; using temporary fallback secret. Set JWT_SECRET in environment variables.");
+        process.env.JWT_SECRET = "temporary_jwt_secret_change_me";
     }
-
-    await connectDB();
 
     const PORT = process.env.PORT || 8000;
 
-    app.listen(PORT, () => {
-        console.log(`Server running at http://localhost:${PORT}`);
+    app.listen(PORT, "0.0.0.0", () => {
+        console.log(`Server running on port ${PORT}`);
     });
+
+    await connectDB();
 };
 
 startServer();

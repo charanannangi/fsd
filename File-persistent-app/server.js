@@ -6,6 +6,10 @@ const app = express();
 // Middleware to read JSON data from request body
 app.use(express.json());
 
+app.get("/", (req, res) => {
+    res.status(200).json({ message: "File Persistent Faculty API is running" });
+});
+
 const readData=() => {
     const data = fs.readFileSync('./data/faculty.json', 'utf8');
     return JSON.parse(data);
@@ -153,10 +157,11 @@ app.delete("/api/v1/faculty/:id", (req, res) => {
 // ==================================================
 // Start the server
 // ==================================================
-app.listen(5000, () => {
+const port = process.env.PORT || 5000;
+app.listen(port, "0.0.0.0", () => {
 
     console.log(
-        "Server is running at http://localhost:5000/"
+        `Server is running on port ${port}`
     );
 
 });

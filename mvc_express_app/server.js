@@ -22,15 +22,15 @@ app.get("/", (req, res) => {
 // Movie API routes
 app.use("/api/v1/movie", movieRoutes);
 
-// Start the server after connecting to MongoDB
+// Start the server
 const startServer = async () => {
-    await connectDB();
-
     const PORT = process.env.PORT || 8000;
 
-    app.listen(PORT, () => {
-        console.log(`Server running at http://localhost:${PORT}`);
+    app.listen(PORT, "0.0.0.0", () => {
+        console.log(`Server running on port ${PORT}`);
     });
+
+    await connectDB();
 };
 
 startServer();

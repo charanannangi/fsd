@@ -1,8 +1,11 @@
 import express from "express";
 import {MongoClient ,ObjectId} from "mongodb";
+import dotenv from "dotenv";
 
-const MONGO_URL = "mongodb+srv://deepikaarugalla_db_user:CTwGuWP9yQWmDb3p@cluster0.wvbmzxj.mongodb.net"; //connecting to mongodb server
-const dbName = "booksDB";
+dotenv.config();
+
+const MONGO_URL = process.env.MONGO_URL || process.env.MONGO_URI || "mongodb+srv://deepikaarugalla_db_user:CTwGuWP9yQWmDb3p@cluster0.wvbmzxj.mongodb.net"; //connecting to mongodb server
+const dbName = process.env.DB_NAME || "booksDB";
 
 const client = new MongoClient(MONGO_URL);
 let db;
@@ -16,6 +19,10 @@ client.connect().then(() => {
 
 const app = express();
 app.use(express.json());
+
+app.get("/", (req, res) => {
+    res.status(200).json({ message: "MongoDB Express Books API is running", dbConnected: Boolean(db) });
+});
 
 //CURD
 //create POST http://localhost:8080/api/v1/books
@@ -101,6 +108,7 @@ app.use((req, res, next) => {
     res.status(404).json({ message: "Route not found" });
 });
 
-app.listen(8080, () => {
-    console.log("Server is running on port http://localhost:8080");
+const port = process.env.PORT || 8080;
+app.listen(port, "0.0.0.0", () => {
+    console.log(`Server is running on port ${port}`);
 });

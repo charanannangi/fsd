@@ -12,14 +12,16 @@ import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 
 dotenv.config();
-await connectDB(process.env.MONGO_URI, process.env.DB_NAME);
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 const PORT = process.env.PORT || 9999;
 
 app.set("view engine", "ejs");
-app.use(express.urlencoded({ extended: true }));
+
+app.get("/health", (req, res) => {
+  res.status(200).json({ message: "Template Engine EJS App is running" });
+});
 
 //CRUD operations for products
 // Route to render the product form for adding a new product
@@ -40,6 +42,8 @@ app.post("/add-product/:id", updateProduct);
 // Route to handle deleting a product
 app.get("/delete-product/:id", deleteProduct);
 
-app.listen(PORT, () => {
-  console.log(`Server is running at http://localhost:${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server is running on port ${PORT}`);
 });
+
+connectDB();

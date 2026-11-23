@@ -5,6 +5,10 @@ const app = express();
 // Middleware to parse JSON request body
 app.use(express.json());
 
+app.get("/", (req, res) => {
+    res.status(200).json({ message: "Non-Persistent Products API is running" });
+});
+
 const products = [];
 
 // POST - Create a new product URL: http://localhost:5000/products
@@ -114,9 +118,10 @@ app.delete("/products/:id", (req, res) => {
 
 
 
-app.listen(5000, () => {
+const port = process.env.PORT || 5000;
+app.listen(port, "0.0.0.0", () => {
     console.log(
-        "Server is running at http://localhost:5000"
+        `Server is running on port ${port}`
     );
 });
 

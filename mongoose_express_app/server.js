@@ -5,18 +5,22 @@ import dotenv from "dotenv";
 dotenv.config();
 const app = express()
 app.use(express.json());
-const port = process.env.PORT||8000;
-const dburl = process.env.MONGO_URL;
-const dbname = process.env.DB_NAME;
+const port = process.env.PORT || 8000;
+const dburl = process.env.MONGO_URL || process.env.MONGO_URI;
+const dbname = process.env.DB_NAME || "movieDB";
 
 //connect to mongodb
-mongoose.connect(dburl, {dbName: dbname})
-  .then(() => {
-    console.log("Connected to MongoDB");
-  })
-  .catch((err) => {
-    console.error("connection failed:", err);
-  });
+if (dburl) {
+  mongoose.connect(dburl, {dbName: dbname})
+    .then(() => {
+      console.log("Connected to MongoDB");
+    })
+    .catch((err) => {
+      console.error("connection failed:", err);
+    });
+} else {
+  console.warn("MONGO_URL/MONGO_URI is not set. Running without DB connection.");
+}
 const movieSchema = new mongoose.Schema({
     title: { type: String, required: true },
     director: { type: String},
@@ -89,9 +93,9 @@ app.delete("/api/v1/movie/:id",(req,res)=>{
 
 //Test Route
 app.get("/",(req,res)=>{
-    res.status(200).json({message:"Movie APi server running"});
+    res.status(200).json({message:"Movie API server running", dbConnected: mongoose.connection.readyState === 1});
 });
 
-app.listen(port,()=>{
-    console.log(`server is running on http://localhost:${port}`);
-})
+app.listen(port, "0.0.0.0", ()=>{
+    console.log(`server is running on port ${port}`);
+});

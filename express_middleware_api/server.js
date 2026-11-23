@@ -5,7 +5,7 @@ import morgan from "morgan";
 
 
 const app = express();
-const port=6500;
+const port = process.env.PORT || 6500;
 //1.Apllication-level middleware
 //4.Third party
 app.use(cors());
@@ -40,6 +40,11 @@ const validatePatient=(req,res,next)=>{
     next();
 };
 app.use(logger);
+
+app.get("/", (req, res) => {
+    res.status(200).json({ message: "Express Middleware API is running" });
+});
+
 //CRUD
 //POST - Create: http://localhost:6500/api/v1/patients
 app.post("/api/v1/patients",validatePatient,(req,res)=>{
@@ -92,6 +97,6 @@ app.use((err,req,res,next)=>{
 app.use((req,res,next)=>{
     res.status(404).json({message:"Resource not found"});
 });
-app.listen(port,()=>{
-    console.log(`Server is running on port http://localhost:${port}`);
+app.listen(port, "0.0.0.0", () => {
+    console.log(`Server is running on port ${port}`);
 });
